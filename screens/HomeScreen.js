@@ -1,4 +1,3 @@
-import * as WebBrowser from 'expo-web-browser';
 import React from 'react';
 import {
   Image,
@@ -8,13 +7,22 @@ import {
   Text,
   TouchableOpacity,
   View,
-    FlatList
+    FlatList,
+    SafeAreaView
 } from 'react-native';
 import Colors from "../constants/Colors";
 import { MonoText } from '../components/StyledText';
 import {responsiveFontSize, responsiveHeight, responsiveWidth} from "react-native-responsive-dimensions";
 
+
 export default class HomeScreen extends  React.Component{
+
+    constructor(props){
+        super(props);
+        this.state={
+          articles:[]
+        };
+    }
 
   async componentWillMount(){
     this.fetchNews();
@@ -25,44 +33,43 @@ export default class HomeScreen extends  React.Component{
     let responseJson = await response.json();
 
     // console.log("news = " + JSON.stringify(responseJson.articles));
+    this.setState({
+        articles : responseJson.articles
+    });
+  }
+  renderNews({item}){
 
+      return(
+          <View style={styles.newsContainer}>
+              <Image style={styles.newsPicture} source={{uri: item.urlToImage}}></Image>
+              <View style={styles.infoContainer}>
+                  <Text style={styles.newsTitle}>{item.title}</Text>
+                  <Text style={styles.newsContent}>{item.author}</Text>
+                  <Text style={styles.publishedAt}>{item.publishedAt}</Text>
+              </View>
+          </View>
+
+      );
+  }
+  renderList(){
+        return(
+
+            <FlatList
+                data = {this.state.articles}
+                renderItem={this.renderNews.bind(this)}
+                keyExtractor={(data,index)=> data.url}
+
+            />
+        );
   }
 render(){
     return(
-        <ScrollView style={styles.container}>
-          <View style={styles.newsContainer}>
-            <Image style={styles.newsPicture} source={{uri:"https://i.dailymail.co.uk/1s/2019/07/02/11/15523914-0-image-a-84_1562062692520.jpg"}}></Image>
-            <View style={styles.infoContainer}>
-              <Text style={styles.newsTitle}>abcabahabcabahabcabahabcabahabcabahabcabahabcaba</Text>
-              <Text style={styles.newsContent}>This is a very very long long text text text text text text</Text>
-              <Text style={styles.publishedAt}>2019-07-02T10:41:17Z</Text>
+        <SafeAreaView>
+            <View >
+
+                {this.renderList()}
             </View>
-          </View>
-          <View style={styles.newsContainer}>
-            <Image style={styles.newsPicture} source={{uri:"https://i.dailymail.co.uk/1s/2019/07/02/11/15523914-0-image-a-84_1562062692520.jpg"}}></Image>
-            <View style={styles.infoContainer}>
-              <Text style={styles.newsTitle}>abcabahabcabahabcabahabcabahabcabahabcabahabcaba</Text>
-              <Text style={styles.newsContent}>This is a very very long long text text text text text text</Text>
-              <Text style={styles.publishedAt}>2019-07-02T10:41:17Z</Text>
-            </View>
-          </View>
-          <View style={styles.newsContainer}>
-            <Image style={styles.newsPicture} source={{uri:"https://i.dailymail.co.uk/1s/2019/07/02/11/15523914-0-image-a-84_1562062692520.jpg"}}></Image>
-            <View style={styles.infoContainer}>
-              <Text style={styles.newsTitle}>abcabahabcabahabcabahabcabahabcabahabcabahabcaba</Text>
-              <Text style={styles.newsContent}>This is a very very long long text text text text text text</Text>
-              <Text style={styles.publishedAt}>2019-07-02T10:41:17Z</Text>
-            </View>
-          </View>
-          <View style={styles.newsContainer}>
-            <Image style={styles.newsPicture} source={{uri:"https://i.dailymail.co.uk/1s/2019/07/02/11/15523914-0-image-a-84_1562062692520.jpg"}}></Image>
-            <View style={styles.infoContainer}>
-              <Text style={styles.newsTitle}>abcabahabcabahabcabahabcabahabcabahabcabahabcaba</Text>
-              <Text style={styles.newsContent}>This is a very very long long text text text text text text</Text>
-              <Text style={styles.publishedAt}>2019-07-02T10:41:17Z</Text>
-            </View>
-          </View>
-        </ScrollView>
+        </SafeAreaView>
     );
   }
 }
