@@ -20,7 +20,11 @@ export default class HomeScreen extends  React.Component{
     constructor(props){
         super(props);
         this.state={
-          articles:[]
+          articles:[],
+          limit : 20,
+            page : 0,
+
+
         };
     }
 
@@ -29,12 +33,15 @@ export default class HomeScreen extends  React.Component{
   }
 
   async fetchNews(){
-    let response = await fetch("https://newsapi.org/v2/top-headlines?q=top&apiKey=2458ead0bce74439a6ebeb0579fafb14");
+        let page = this.state.page+1;
+    let response = await fetch("https://newsapi.org/v2/everything?q=india&apiKey=462625234c6c484a8f39308490128df7&page="+page);
     let responseJson = await response.json();
 
     // console.log("news = " + JSON.stringify(responseJson.articles));
+      let articles = this.state.articles;
     this.setState({
-        articles : responseJson.articles
+        articles : articles.concat(responseJson.articles),
+        page : page,
     });
   }
   renderNews({item}){
@@ -57,6 +64,7 @@ export default class HomeScreen extends  React.Component{
             <FlatList
                 data = {this.state.articles}
                 renderItem={this.renderNews.bind(this)}
+                onEndReached={()=> this.fetchNews()}
                 keyExtractor={(data,index)=> data.url}
 
             />
