@@ -7,6 +7,7 @@ import {
   Text,
   TouchableOpacity,
   View,
+    ActivityIndicator,
     FlatList,
     SafeAreaView
 } from 'react-native';
@@ -23,8 +24,8 @@ export default class HomeScreen extends  React.Component{
           articles:[],
           limit : 20,
             page : 0,
-
-
+            isLoading : true,
+            isRefreshing : true,
         };
     }
 
@@ -42,9 +43,32 @@ export default class HomeScreen extends  React.Component{
     this.setState({
         articles : articles.concat(responseJson.articles),
         page : page,
+        isLoading : false,
+        isRefreshing : false,
     });
   }
-  renderNews({item}){
+    async refreshNews(){
+        let page = this.state.page+1;
+        this.setState({
+           isRefreshing : true,
+        });
+        let response = await fetch("https://newsapi.org/v2/everything?q=us&apiKey=462625234c6c484a8f39308490128df7&page="+page);
+        let responseJson = await response.json();
+
+
+        // console.log("news = " + JSON.stringify(responseJson.articles));
+        let articles = this.state.articles;
+        this.setState({
+            articles :responseJson.articles,
+            page : page,
+            isLoading : false,
+            isRefreshing : false,
+        });
+    }
+
+
+
+    renderNews({item}){
 
       return(
           <View style={styles.newsContainer}>
@@ -59,17 +83,26 @@ export default class HomeScreen extends  React.Component{
       );
   }
   renderList(){
-        return(
+      if(this.state.isLoading){
+          return(
+              <View style={styles.loadingContainer}>
+                  <ActivityIndicator size={'large'} color={'#333'}/>
+              </View>
+          );
+      }else {
 
-            <FlatList
-                data = {this.state.articles}
-                renderItem={this.renderNews.bind(this)}
-                onEndReached={()=> this.fetchNews()}
-                keyExtractor={(data,index)=> data.url}
+          return (
 
-            />
-        );
-  }
+              <FlatList
+                  data={this.state.articles}
+                  renderItem={this.renderNews.bind(this)}
+                  onEndReached={() => this.fetchNews()}
+                  keyExtractor={(data, index) => data.url}
+                  onRefresh={() => this.refreshNews()}
+                  refreshing={this.state.isRefreshing}
+              />
+          );
+      }  }
 render(){
     return(
         <SafeAreaView>
@@ -118,5 +151,11 @@ const styles = StyleSheet.create({
     marginTop:responsiveHeight(1),
     color:'#888',
 
-  }
+  },
+    loadingContainer:{
+      flex:1,
+        paddingTop: responsiveHeight(50),
+        alignItems: 'center',
+        justifyContent: 'center',
+    }
 });

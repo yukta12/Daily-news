@@ -13,7 +13,7 @@ export default {
   noticeText: '#fff',
 
 
-  primaryColor : '#1a00a7',
+  primaryColor : '#96091d',
   darkPrimary : '#0d0052',
   whiteColor : '#fff',
   blackColor : '#333',
